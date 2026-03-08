@@ -8,9 +8,12 @@
   },
   "dependencies": {
     "@amansanoj/brand": "^1.0.2",
-    "hono": "^4.12.5"
+    "@resvg/resvg-wasm": "^2.6.2",
+    "hono": "^4.12.5",
+    "satori": "^0.25.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260307.1",
     "wrangler": "^4.4.0"
   }
 }
