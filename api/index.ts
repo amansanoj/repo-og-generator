@@ -1,43 +1,43 @@
-import { Hono } from 'hono'
-import { handle } from 'hono/vercel'
+import type { VercelRequest, VercelResponse } from '@vercel/node'
 import satori from 'satori'
 import { Resvg } from '@resvg/resvg-js'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { readFileSync, existsSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-export const config = { runtime: 'nodejs' }
+const candidates = [
+  join(dirname(fileURLToPath(import.meta.url)), '..', 'public'),
+  join(dirname(fileURLToPath(import.meta.url)), 'public'),
+  join(process.cwd(), 'public'),
+]
+const publicDir = candidates.find(d => existsSync(join(d, 'Rubik-Regular.ttf')))
+if (!publicDir) throw new Error(`public/ not found. Tried:\n${candidates.join('\n')}`)
 
-const publicDir = join(process.cwd(), 'public')
+const rubikRegularData: ArrayBuffer = readFileSync(join(publicDir, 'Rubik-Regular.ttf')).buffer
+const rubikSemiBoldData: ArrayBuffer = readFileSync(join(publicDir, 'Rubik-SemiBold.ttf')).buffer
 
-const rubikRegularData = readFileSync(join(publicDir, 'Rubik-Regular.ttf')).buffer
-const rubikSemiBoldData = readFileSync(join(publicDir, 'Rubik-SemiBold.ttf')).buffer
-
-function svgToDataUrl(filename: string): string {
-  const bytes = readFileSync(join(publicDir, filename))
-  return `data:image/svg+xml;base64,${bytes.toString('base64')}`
+function svgDataUrl(file: string) {
+  return `data:image/svg+xml;base64,${readFileSync(join(publicDir!, file)).toString('base64')}`
 }
 
 const svgDataUrls: Record<string, string> = {
-  'primary.svg': svgToDataUrl('primary.svg'),
-  'primary-link.svg': svgToDataUrl('primary-link.svg'),
-  'accent.svg': svgToDataUrl('accent.svg'),
-  'accent-link.svg': svgToDataUrl('accent-link.svg'),
+  'primary.svg': svgDataUrl('primary.svg'),
+  'primary-link.svg': svgDataUrl('primary-link.svg'),
+  'accent.svg': svgDataUrl('accent.svg'),
+  'accent-link.svg': svgDataUrl('accent-link.svg'),
 }
 
-const app = new Hono().basePath('/')
-
-app.get('/:reponame', async (c) => {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
-    const { reponame } = c.req.param()
-
-    const variant = c.req.query('variant') || 'primary'
-    const description = c.req.query('description') || 'No description provided.'
-    const urlText = c.req.query('url') || ''
+    const reponame = (req.query.reponame as string) || (req.url?.split('/').pop()?.split('?')[0] ?? 'repo')
+    const variant = (req.query.variant as string) || 'primary'
+    const description = (req.query.description as string) || 'No description provided.'
+    const urlText = (req.query.url as string) || ''
 
     const textColor = variant === 'accent' ? '#FDF1E8' : '#E8F2FB'
     const showLink = urlText.trim().length > 0
 
-    let scale = parseFloat(c.req.query('scale') || '1')
+    let scale = parseFloat((req.query.scale as string) || '1')
     if (isNaN(scale) || scale <= 0 || scale > 3) scale = 1
 
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
@@ -129,17 +129,13 @@ app.get('/:reponame', async (c) => {
     )
 
     const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: scale } })
-    const pngData = new Uint8Array(resvg.render().asPng())
+    const pngData = resvg.render().asPng()
 
-    return new Response(pngData, {
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400',
-      },
-    })
+    res.setHeader('Content-Type', 'image/png')
+    res.setHeader('Cache-Control', 'public, max-age=86400')
+    res.send(pngData)
   } catch (error: any) {
-    return c.text(`Error generating image: ${error.message}`, 500)
+    console.error('[og-generator]', error)
+    res.status(500).send(`Error: ${error?.message ?? String(error)}`)
   }
-})
-
-export default handle(app)
+}
