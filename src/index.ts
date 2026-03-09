@@ -1,9 +1,5 @@
 import { Hono } from 'hono'
 import satori from 'satori'
-import { Resvg, initWasm } from '@resvg/resvg-wasm'
-
-// @ts-expect-error - TypeScript doesn't natively understand .wasm imports
-import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
 import rubikRegularData from '../public/Rubik-Regular.ttf'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
@@ -26,7 +22,6 @@ const svgMap: Record<string, ArrayBuffer> = {
 
 const app = new Hono()
 
-let wasmInitialized = false
 
 app.get('/:reponame', async (c) => {
   try {
@@ -36,27 +31,18 @@ app.get('/:reponame', async (c) => {
     const description = c.req.query('description') || 'No description provided.'
     const urlText = c.req.query('url') || ''
 
-    // Parse the scale parameter (default to 1)
-    let scale = parseFloat(c.req.query('scale') || '1')
-    // Sanity check: prevent negative numbers, letters, or massive memory-crashing scales
-    if (isNaN(scale) || scale <= 0 || scale > 5) {
-      scale = 1
-    }
-
     // Determine text color based on variant
     const textColor = variant === 'accent' ? '#FDF1E8' : '#E8F2FB'
 
     // Smart logic: Only show the link version if the URL parameter actually has text
     const showLink = urlText.trim().length > 0
 
-    if (!wasmInitialized) {
-      await initWasm(resvgWasm)
-      wasmInitialized = true
-    }
-
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
     const bgSvgBuffer = svgMap[bgFilename]
-    const bgUrl = `data:image/svg+xml;base64,${btoa(String.fromCharCode(...new Uint8Array(bgSvgBuffer)))}` 
+    const bytes = new Uint8Array(bgSvgBuffer)
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+    const bgUrl = `data:image/svg+xml;base64,${btoa(binary)}`
 
     const children: any[] = [
       {
@@ -143,16 +129,10 @@ app.get('/:reponame', async (c) => {
       }
     )
 
-    // Convert SVG to PNG, applying the scale dynamically!
-    const resvg = new Resvg(svg, { 
-      fitTo: { mode: 'zoom', value: scale } 
-    })
-    const pngData = resvg.render().asPng()
-
-    return new Response(pngData, {
+    return new Response(svg, {
       headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400', 
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'public, max-age=86400',
       },
     })
   } catch (error: any) {
