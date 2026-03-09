@@ -1,5 +1,8 @@
 import { Hono } from 'hono'
 import satori from 'satori'
+import { Resvg, initWasm } from '@resvg/resvg-wasm'
+// @ts-expect-error - TypeScript doesn't natively understand .wasm imports
+import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
 import rubikRegularData from '../public/Rubik-Regular.ttf'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
@@ -22,6 +25,7 @@ const svgMap: Record<string, ArrayBuffer> = {
 
 const app = new Hono()
 
+let wasmInitPromise: Promise<void> | null = null
 
 app.get('/:reponame', async (c) => {
   try {
@@ -36,6 +40,11 @@ app.get('/:reponame', async (c) => {
 
     // Smart logic: Only show the link version if the URL parameter actually has text
     const showLink = urlText.trim().length > 0
+
+    if (!wasmInitPromise) {
+      wasmInitPromise = initWasm(resvgWasm)
+    }
+    await wasmInitPromise
 
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
     const bgSvgBuffer = svgMap[bgFilename]
@@ -129,9 +138,12 @@ app.get('/:reponame', async (c) => {
       }
     )
 
-    return new Response(svg, {
+    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 1 } })
+    const pngData = resvg.render().asPng()
+
+    return new Response(pngData, {
       headers: {
-        'Content-Type': 'image/svg+xml',
+        'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=86400',
       },
     })
