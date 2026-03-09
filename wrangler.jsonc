@@ -17,7 +17,7 @@
     },
     {
       "type": "Data",
-      "globs": ["**/*.ttf"]
+      "globs": ["**/*.ttf", "**/*.svg"]
     }
   ]
   // "compatibility_flags": [
