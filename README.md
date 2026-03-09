@@ -1,21 +1,28 @@
-```txt
-bun install
-bun run dev
+Prerequisites:
+
+- [Vercel CLI](https://vercel.com/docs/cli) installed globally
+
+To develop locally:
+
+```
+npm install
+vc dev
 ```
 
-```txt
-bunx run deploy
+```
+open http://localhost:3000
 ```
 
-[For generating/synchronizing types based on your Worker configuration run](https://developers.cloudflare.com/workers/wrangler/commands/#types):
+To build locally:
 
-```txt
-bunx run cf-typegen
+```
+npm install
+vc build
 ```
 
-Pass the `CloudflareBindings` as generics when instantiation `Hono`:
+To deploy:
 
-```ts
-// src/index.ts
-const app = new Hono<{ Bindings: CloudflareBindings }>()
+```
+npm install
+vc deploy
 ```

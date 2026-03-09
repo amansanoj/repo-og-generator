@@ -1,19 +1,14 @@
 {
-  "name": "repo-og-generator",
+  "name": "hono",
   "type": "module",
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
-  },
   "dependencies": {
-    "@amansanoj/brand": "^1.0.2",
-    "@resvg/resvg-wasm": "^2.6.2",
+    "@resvg/resvg-js": "^2.6.2",
     "hono": "^4.12.5",
     "satori": "^0.25.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260307.1",
-    "wrangler": "^4.4.0"
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
   }
 }
