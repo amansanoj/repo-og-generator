@@ -41,6 +41,9 @@ app.get('/:reponame', async (c) => {
     // Smart logic: Only show the link version if the URL parameter actually has text
     const showLink = urlText.trim().length > 0
 
+    let scale = parseFloat(c.req.query('scale') || '1')
+    if (isNaN(scale) || scale <= 0 || scale > 1) scale = 1
+
     if (!wasmInitPromise) {
       wasmInitPromise = initWasm(resvgWasm)
     }
@@ -138,7 +141,7 @@ app.get('/:reponame', async (c) => {
       }
     )
 
-    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: 1 } })
+    const resvg = new Resvg(svg, { fitTo: { mode: 'zoom', value: scale } })
     const pngData = resvg.render().asPng()
 
     return new Response(pngData, {
