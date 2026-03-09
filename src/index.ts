@@ -8,6 +8,21 @@ import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm'
 import rubikRegularData from '../public/Rubik-Regular.ttf'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
 import rubikSemiBoldData from '../public/Rubik-SemiBold.ttf'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import primarySvg from '../public/primary.svg'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import primaryLinkSvg from '../public/primary-link.svg'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import accentSvg from '../public/accent.svg'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import accentLinkSvg from '../public/accent-link.svg'
+
+const svgMap: Record<string, ArrayBuffer> = {
+  'primary.svg': primarySvg,
+  'primary-link.svg': primaryLinkSvg,
+  'accent.svg': accentSvg,
+  'accent-link.svg': accentLinkSvg,
+}
 
 const app = new Hono()
 
@@ -39,16 +54,17 @@ app.get('/:reponame', async (c) => {
       wasmInitialized = true
     }
 
-    const baseUrl = new URL(c.req.url).origin
-
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
-    const bgUrl = `${baseUrl}/${bgFilename}`
+    const bgSvgBuffer = svgMap[bgFilename]
+    const bgUrl = `data:image/svg+xml;base64,${btoa(String.fromCharCode(...new Uint8Array(bgSvgBuffer)))}` 
 
     const children: any[] = [
       {
         type: 'img',
         props: {
           src: bgUrl,
+          width: 1200,
+          height: 630,
           style: { position: 'absolute', top: 0, left: 0, width: '1200px', height: '630px' }
         }
       },
