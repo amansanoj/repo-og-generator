@@ -16,16 +16,33 @@ import accentSvg from '../public/accent.svg'
 // @ts-expect-error - Imported as raw binary via Wrangler Data rule
 import accentLinkSvg from '../public/accent-link.svg'
 
-const svgMap: Record<string, ArrayBuffer> = {
-  'primary.svg': primarySvg,
-  'primary-link.svg': primaryLinkSvg,
-  'accent.svg': accentSvg,
-  'accent-link.svg': accentLinkSvg,
+function toDataUrl(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+  return `data:image/svg+xml;base64,${btoa(binary)}`
+}
+
+const svgDataUrls: Record<string, string> = {
+  'primary.svg': toDataUrl(primarySvg),
+  'primary-link.svg': toDataUrl(primaryLinkSvg),
+  'accent.svg': toDataUrl(accentSvg),
+  'accent-link.svg': toDataUrl(accentLinkSvg),
 }
 
 const app = new Hono()
 
 let wasmInitPromise: Promise<void> | null = null
+
+function getWasmInit(): Promise<void> {
+  if (!wasmInitPromise) {
+    wasmInitPromise = initWasm(resvgWasm).catch((e) => {
+      wasmInitPromise = null
+      throw e
+    })
+  }
+  return wasmInitPromise
+}
 
 app.get('/:reponame', async (c) => {
   try {
@@ -44,17 +61,10 @@ app.get('/:reponame', async (c) => {
     let scale = parseFloat(c.req.query('scale') || '1')
     if (isNaN(scale) || scale <= 0 || scale > 1) scale = 1
 
-    if (!wasmInitPromise) {
-      wasmInitPromise = initWasm(resvgWasm)
-    }
-    await wasmInitPromise
+    await getWasmInit()
 
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
-    const bgSvgBuffer = svgMap[bgFilename]
-    const bytes = new Uint8Array(bgSvgBuffer)
-    let binary = ''
-    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-    const bgUrl = `data:image/svg+xml;base64,${btoa(binary)}`
+    const bgUrl = svgDataUrls[bgFilename]
 
     const children: any[] = [
       {
