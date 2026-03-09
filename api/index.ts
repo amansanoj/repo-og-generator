@@ -435,7 +435,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const reponame = decodeURIComponent((req.query.reponame as string) || (req.url?.split('/').pop()?.split('?')[0] ?? 'repo'))
     const variant = (req.query.variant as string) || 'primary'
-    const description = (req.query.description as string) || 'No description provided.'
+    const description = (req.query.description as string) || ''
     const urlText = (req.query.url as string) || ''
 
     const textColor = variant === 'accent' ? '#FDF1E8' : '#E8F2FB'
@@ -488,6 +488,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             color: textColor,
             width: '1050px',
             display: 'flex',
+            flexWrap: 'wrap',
+            wordBreak: 'break-word',
+            overflowWrap: 'break-word',
           },
           children: description,
         },
