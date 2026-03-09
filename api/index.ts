@@ -433,7 +433,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const reponame = (req.query.reponame as string) || (req.url?.split('/').pop()?.split('?')[0] ?? 'repo')
+    const reponame = decodeURIComponent((req.query.reponame as string) || (req.url?.split('/').pop()?.split('?')[0] ?? 'repo'))
     const variant = (req.query.variant as string) || 'primary'
     const description = (req.query.description as string) || 'No description provided.'
     const urlText = (req.query.url as string) || ''
