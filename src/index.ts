@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { serveStatic } from 'hono/cloudflare-workers'
 import satori from 'satori'
 import { Resvg, initWasm } from '@resvg/resvg-wasm'
 
@@ -7,6 +8,12 @@ import { Resvg, initWasm } from '@resvg/resvg-wasm'
 import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm'
 
 const app = new Hono()
+
+// Serve static files from the /public directory
+app.use('/*', serveStatic({
+  root: './',
+  manifest: ''
+}))
 
 let wasmInitialized = false
 let rubikRegular: ArrayBuffer | null = null
