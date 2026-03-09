@@ -2,15 +2,16 @@ import { Hono } from 'hono'
 import satori from 'satori'
 import { Resvg, initWasm } from '@resvg/resvg-wasm'
 
-// 1. Import the Wasm module directly so Wrangler bundles it
 // @ts-expect-error - TypeScript doesn't natively understand .wasm imports
 import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import rubikRegularData from '../public/Rubik-Regular.ttf'
+// @ts-expect-error - Imported as raw binary via Wrangler Data rule
+import rubikSemiBoldData from '../public/Rubik-SemiBold.ttf'
 
 const app = new Hono()
 
 let wasmInitialized = false
-let rubikRegular: ArrayBuffer | null = null
-let rubikSemiBold: ArrayBuffer | null = null
 
 app.get('/:reponame', async (c) => {
   try {
@@ -40,20 +41,6 @@ app.get('/:reponame', async (c) => {
 
     const baseUrl = new URL(c.req.url).origin
 
-    if (!rubikRegular || !rubikSemiBold) {
-      const [regRes, semiRes] = await Promise.all([
-        fetch(`${baseUrl}/Rubik-Regular.ttf`),
-        fetch(`${baseUrl}/Rubik-SemiBold.ttf`)
-      ])
-      
-      if (!regRes.ok || !semiRes.ok) {
-        throw new Error('Could not find font files in the /public folder.')
-      }
-      
-      rubikRegular = await regRes.arrayBuffer()
-      rubikSemiBold = await semiRes.arrayBuffer()
-    }
-    
     const bgFilename = `${variant}${showLink ? '-link' : ''}.svg`
     const bgUrl = `${baseUrl}/${bgFilename}`
 
@@ -134,8 +121,8 @@ app.get('/:reponame', async (c) => {
         width: 1200,
         height: 630,
         fonts: [
-          { name: 'Rubik', data: rubikRegular!, weight: 400, style: 'normal' },
-          { name: 'Rubik', data: rubikSemiBold!, weight: 600, style: 'normal' },
+          { name: 'Rubik', data: rubikRegularData, weight: 400, style: 'normal' },
+          { name: 'Rubik', data: rubikSemiBoldData, weight: 600, style: 'normal' },
         ],
       }
     )
