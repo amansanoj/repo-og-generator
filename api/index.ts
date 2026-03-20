@@ -392,7 +392,7 @@ const homepage = `<!DOCTYPE html>
 
   </div>
 
-  <script>
+    <script>
     function buildUrl() {
       const reponame = document.getElementById('reponame').value.trim() || 'my-project'
       const description = document.getElementById('description').value.trim()
@@ -404,7 +404,8 @@ const homepage = `<!DOCTYPE html>
       if (url) params.set('url', url)
       if (variant !== 'primary') params.set('variant', variant)
       if (scale !== '1') params.set('scale', scale)
-      return \`/\${encodeURIComponent(reponame)}?\${params.toString()}\`
+      const query = params.toString().replace(/\+/g, '%20')
+      return query ? \`/\${encodeURIComponent(reponame)}?\${query}\` : \`/\${encodeURIComponent(reponame)}\`
     }
 
     function generate() {
@@ -412,7 +413,7 @@ const homepage = `<!DOCTYPE html>
       const wrap = document.getElementById('preview-wrap')
       const img = document.getElementById('preview-img')
       const box = document.getElementById('url-box')
-      img.src = u + '&t=' + Date.now()
+      img.src = u + (u.includes('?') ? '&' : '?') + 't=' + Date.now()
       box.textContent = window.location.origin + u
       wrap.style.display = 'flex'
     }
@@ -449,12 +450,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const decodeQueryText = (value: unknown): string => {
+      if (typeof value !== 'string') return ''
+      try {
+        return decodeURIComponent(value.replace(/\+/g, '%20'))
+      } catch {
+        return value.replace(/\+/g, ' ')
+      }
+    }
+
     const reponame = decodeURIComponent((req.query.reponame as string) || (req.url?.split('/').pop()?.split('?')[0] ?? 'repo'))
     const variant = (req.query.variant as string) || 'primary'
-    const description = (req.query.description as string) || ''
-    const urlText = (req.query.url as string) || ''
+    const description = decodeQueryText(req.query.description)
+    const urlText = decodeQueryText(req.query.url)
 
-    const textColor = variant === 'accent' ? '#FDF1E8' : '#E8F2FB'
+    const textColor = variant === 'accent' ? '#FFFFFF' : '#E8F2FB'
     const showLink = urlText.trim().length > 0
 
     let scale = parseFloat((req.query.scale as string) || '1')
