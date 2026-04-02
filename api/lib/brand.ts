@@ -1,6 +1,6 @@
-import { tokens } from '@amansanoj/brand'
+import brandTokensJson from '@amansanoj/brand/tokens' with { type: 'json' }
 
-export const brandTokens = tokens
+export const brandTokens = brandTokensJson
 
 export const brandColors = {
   light: brandTokens.color.light.base,

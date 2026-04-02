@@ -12,7 +12,7 @@ const ogAssets = loadOgAssets(publicDir)
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const urlPath = req.url?.split('?')[0] ?? '/'
 
-  if (urlPath === '/api/brand-css') {
+  if (urlPath === '/api/brand-css' || urlPath === '/api/globals.css') {
     res.setHeader('Content-Type', 'text/css; charset=utf-8')
     res.setHeader('Cache-Control', 'public, max-age=604800')
     return res.send(brandCss)
