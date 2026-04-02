@@ -2,6 +2,7 @@
   "name": "hono",
   "type": "module",
   "dependencies": {
+    "@amansanoj/brand": "^1.0.7",
     "@resvg/resvg-js": "^2.6.2",
     "@vercel/node": "^5.6.11",
     "hono": "^4.12.5",
