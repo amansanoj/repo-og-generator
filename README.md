@@ -1,4 +1,4 @@
-![OG Image](https://repo-og-generator.vercel.app/repo-og-generator?description=A%20serverless%20API%20designed%20to%20generate%20beautiful%2C%20dynamic%20social%20share%20Open%20Graph%20images%20instantly%20for%20GitHub%20repositories.&scale=2)
+![OG Image](https://repo-og-generator.vercel.app/repo-og-generator?description=A%20serverless%20API%20designed%20to%20generate%20beautiful%2C%20dynamic%20social%20share%20Open%20Graph%20images%20instantly%20for%20GitHub%20repositories&scale=2)
 
 ## Index
 - [Features](#features)
