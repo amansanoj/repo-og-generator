@@ -10,7 +10,7 @@
 ## Features
 - Generates 1200x630 resolution PNG share images on the fly via serverless execution
 - Supports dynamic query parameters including description, output scale, and URL
-- Provides customizable color variants like primary and accent design templates
+- Provides customizable color variants like primary and secondary design templates
 - Ships with an integrated homepage UI to directly preview and copy generated URLs
 - Bundles fonts natively during the build phase to ensure perfect layout rendering
 
@@ -21,21 +21,46 @@
 ├── LICENSE
 ├── README.md
 ├── api
-│   └── index.ts
+│   ├── index.ts
+│   └── lib
+│       ├── assets.ts
+│       ├── config.ts
+│       ├── query.ts
+│       └── render-og.ts
 ├── bun.lock
 ├── package.json
 ├── public
-│   ├── Rubik-Regular.ttf
-│   ├── Rubik-SemiBold.ttf
-│   ├── accent-link.svg
-│   ├── accent.svg
+│   ├── index.html
+│   ├── favicon.svg
+│   ├── OpenSans-Regular.ttf
+│   ├── OpenSans-Bold.ttf
+│   ├── secondary-link.svg
+│   ├── secondary.svg
 │   ├── og-home.png
 │   ├── primary-link.svg
 │   └── primary.svg
 ├── tsconfig.json
 └── vercel.json
 ```
-The codebase strictly relies on `api/index.ts` to coordinate image generation, leveraging SVG designs and font files mapped out in the `public/` directory for compositing.
+`api/index.ts` is now a thin router. Most customization lives in `api/lib/config.ts`.
+
+## Fork Customization (Quick Path)
+For most forks, edit only `api/lib/config.ts`:
+
+- `appConfig.files.fonts`: switch to your own font filenames
+- `appConfig.files.variants`: map your variant names to SVG files; the homepage radios are generated from this list automatically
+- The homepage variant radios are hydrated from `api/config.ts`, so updating the variants list there updates the UI too
+- `appConfig.og.textColor`: set global text color
+- `appConfig.og.layout`: adjust x/y/width/line-height positions
+- `appConfig.og.minScale` / `maxScale`: change allowed scale range
+- Color values come from `@amansanoj/brand` through `api/lib/brand.ts` and `/api/brand-css`; swap that package if you want a different palette
+
+Then replace visual assets in `public/`:
+
+- `public/primary.svg`, `public/primary-link.svg`
+- `public/secondary.svg`, `public/secondary-link.svg`
+- `public/index.html` (homepage content/styles)
+- `public/favicon.svg`
 
 ## Local Development
 To customize the generator or run your own instance locally, ensure you have Bun installed and use the Vercel CLI to boot the serverless environment:
