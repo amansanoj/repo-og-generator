@@ -5,8 +5,8 @@ export const appConfig = {
     homepage: 'index.html',
     favicon: 'favicon.svg',
     fonts: {
-      regular: 'OpenSans-Regular.ttf',
-      bold: 'OpenSans-Bold.ttf',
+      regular: 'Geist-Regular.ttf',
+      bold: 'InstrumentSans-Medium.ttf',
     },
     variants: {
       primary: {
@@ -38,23 +38,23 @@ export const appConfig = {
     },
     layout: {
       title: {
-        left: '196px',
+        left: '203px',
         top: '72px',
         fontSize: '72px',
-        lineHeight: '98px',
+        lineHeight: '88px',
       },
       description: {
         left: '72px',
-        top: '206px',
+        top: '196px',
         fontSize: '48px',
-        lineHeight: '65px',
+        lineHeight: '62px',
         width: '1056px',
       },
       link: {
         left: '138px',
-        top: '501.5px',
+        top: '503px',
         fontSize: '48px',
-        lineHeight: '65px',
+        lineHeight: '62px',
       },
     },
   },

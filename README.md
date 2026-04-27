@@ -32,8 +32,8 @@
 ├── public
 │   ├── index.html
 │   ├── favicon.svg
-│   ├── OpenSans-Regular.ttf
-│   ├── OpenSans-Bold.ttf
+│   ├── Geist-Regular.ttf
+│   ├── InstrumentSans-Medium.ttf
 │   ├── secondary-link.svg
 │   ├── secondary.svg
 │   ├── og-home.png
