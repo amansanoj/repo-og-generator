@@ -3,6 +3,36 @@ import { Resvg } from '@resvg/resvg-js'
 import type { OgAssets } from './assets.js'
 import { appConfig } from './config.js'
 
+const notoEmojiBaseUrl = 'https://raw.githubusercontent.com/googlefonts/noto-emoji/main/svg'
+const emojiAssetCache = new Map<string, string>()
+
+function toNotoEmojiUrl(grapheme: string): string {
+  const codePoints = Array.from(grapheme)
+    .map((character) => character.codePointAt(0))
+    .filter((codePoint): codePoint is number => codePoint !== undefined && codePoint !== 0xfe0f)
+    .map((codePoint) => codePoint.toString(16))
+    .filter((codePoint): codePoint is string => Boolean(codePoint))
+
+  return `${notoEmojiBaseUrl}/emoji_u${codePoints.join('_')}.svg`
+}
+
+async function toNotoEmojiDataUrl(grapheme: string): Promise<string> {
+  const cached = emojiAssetCache.get(grapheme)
+  if (cached) {
+    return cached
+  }
+
+  const response = await fetch(toNotoEmojiUrl(grapheme))
+  if (!response.ok) {
+    throw new Error(`Failed to load emoji asset for ${grapheme}`)
+  }
+
+  const svg = await response.text()
+  const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
+  emojiAssetCache.set(grapheme, dataUrl)
+  return dataUrl
+}
+
 export type OgParams = {
   reponame: string
   description: string
@@ -128,6 +158,13 @@ export async function renderOgImagePng(params: OgParams, assets: OgAssets): Prom
           style: 'normal',
         },
       ],
+      loadAdditionalAsset: async (languageCode, segment) => {
+        if (languageCode === 'emoji') {
+          return toNotoEmojiDataUrl(segment)
+        }
+
+        return []
+      },
     }
   )
 
