@@ -129,7 +129,7 @@
       
       <div role="group" class="field">
         <label for="reponame" class="text-base font-semibold">Repository Name</label>
-        <input id="reponame" type="text" placeholder="e.g., your-username/awesome-repo" class="input h-12 bg-muted border border-transparent focus:border-primary text-base px-4 outline-none transition-colors placeholder:text-muted-foreground/70" />
+        <input id="reponame" type="text" placeholder="e.g., awesome-repo" class="input h-12 bg-muted border border-transparent focus:border-primary text-base px-4 outline-none transition-colors placeholder:text-muted-foreground/70" />
       </div>
       
       <div role="group" class="field">
@@ -140,7 +140,7 @@
       <div class="flex flex-col sm:flex-row gap-6 sm:gap-4">
         <div role="group" class="field flex-1">
           <label for="url" class="text-base font-semibold">Website URL <span class="font-medium text-accent ml-1 text-sm">optional</span></label>
-          <input id="url" type="text" placeholder="e.g., https://yourwebsite.com" class="input h-12 bg-muted border border-transparent focus:border-primary text-base px-4 outline-none transition-colors placeholder:text-muted-foreground/70" />
+          <input id="url" type="text" placeholder="e.g., yourwebsite.com" class="input h-12 bg-muted border border-transparent focus:border-primary text-base px-4 outline-none transition-colors placeholder:text-muted-foreground/70" />
         </div>
         
         <div role="group" class="field flex-1">
@@ -220,7 +220,7 @@
     }
 
     function buildUrl() {
-      const reponame = document.getElementById('reponame').value.trim() || 'my-project'
+      const reponame = document.getElementById('reponame').value.trim() || 'awesome-repo'
       const description = document.getElementById('description').value.trim()
       const url = document.getElementById('url').value.trim()
       const variantInput = document.querySelector('input[name=variant]:checked')
